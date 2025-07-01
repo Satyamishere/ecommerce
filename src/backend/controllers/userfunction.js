@@ -366,7 +366,7 @@ const createChat = async (req, res) => {
       return res.status(200).json({ success: true, chat: existingChat });
     }
 
-    // Create new chat
+   
     const newChat = await Chat.create({ productId, buyerId, ownerId });
     return res.status(201).json({ success: true, chat: newChat });
   } catch (error) {

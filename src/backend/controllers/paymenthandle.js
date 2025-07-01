@@ -1,4 +1,4 @@
-// ✅ BACKEND: paymenthandle.js
+
 
 import Razorpay from "razorpay";
 import { Product } from "../models/product.js";

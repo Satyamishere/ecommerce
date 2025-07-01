@@ -1,5 +1,4 @@
 import { Router } from "express";
-import { searchForProduct } from "../controllers/userfunction.js";
 import { createOrder,verifyPayment } from "../controllers/paymenthandle.js";
 import { getSalesOverTime } from "../controllers/adminfunction.js";
 const router=Router()

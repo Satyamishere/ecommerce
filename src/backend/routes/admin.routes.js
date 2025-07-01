@@ -14,7 +14,7 @@ const router = Router();
 
 
 
-// All below routes need authenticated admin access
+
 router.route("/dashboard-stats").get(verifyJWT, isAdmin, getAdminDashboardStats);
 router.route("/sales-category").get(verifyJWT, isAdmin, getSalesByCategory);
 router.route("/sales-product").get(verifyJWT, isAdmin, getSalesByProduct);
