@@ -1,0 +1,17 @@
+
+node_modules/
+frontend/node_modules/
+
+
+
+.env
+frontend/.env
+
+
+
+*.log
+logs/
+
+
+.vscode/
+.DS_Store
