@@ -9,9 +9,9 @@ frontend/.env
 
 
 
-*.log
-logs/
+
+
 
 
 .vscode/
-.DS_Store
+
