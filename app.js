@@ -2,6 +2,10 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import dotenv from 'dotenv';
+import userRouter from './src/backend/routes/user.routes.js';
+import paymentRouter from './src/backend/routes/payment.routes.js';
+import adminRouter from './src/backend/routes/admin.routes.js'
+import { createAdmin } from "./src/backend/controllers/adminfunction.js";
 dotenv.config();
 
 const app = express();
@@ -19,10 +23,7 @@ app.use(cookieParser());
 app.use(express.static("public"));
 
 
-import userRouter from './src/backend/routes/user.routes.js';
-import paymentRouter from './src/backend/routes/payment.routes.js';
-import adminRouter from './src/backend/routes/admin.routes.js'
-import { createAdmin } from "./src/backend/controllers/adminfunction.js";
+
 
 app.use("/api/v1/users", userRouter);  
 app.use("/api/v1/payment", paymentRouter);
