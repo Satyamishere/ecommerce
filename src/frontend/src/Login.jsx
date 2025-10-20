@@ -27,7 +27,7 @@ function Login() {
 
       if (res.status === 200) {
         alert("Login successful");
-        console.log(res.data.data)
+        console.log(res.data.data);
         if (res.data.data?.role?.includes("admin")) {
           navigate("/admindashboard");
         } else {
@@ -36,47 +36,42 @@ function Login() {
           }, 1000);
         }
       }
-      localStorage.setItem("user", JSON.stringify(res.data.data));//for cahtting purpose
-
-      console.log(res);
+      localStorage.setItem("user", JSON.stringify(res.data.data));
     } catch (error) {
-      console.error(
-        "Login failed:",
-        error.response?.data?.message || error.message
-      );
+      console.error("Login failed:", error.response?.data?.message || error.message);
       alert("Login failed. Please check your credentials.");
     }
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-100 to-blue-300">
       <form
         onSubmit={handleLogin}
-        className="bg-white p-6 rounded shadow-md w-full max-w-sm"
+        className="bg-white p-8 rounded-lg shadow-lg w-full max-w-sm"
       >
-        <h2 className="text-2xl font-bold mb-4 text-center">Login</h2>
+        <h2 className="text-3xl font-bold mb-6 text-center text-gray-800">Login</h2>
 
-        <label className="block mb-2 text-sm font-semibold">Email</label>
+        <label className="block mb-1 text-sm font-medium text-gray-700">Email</label>
         <input
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full px-3 py-2 mb-4 border border-gray-300 rounded"
+          className="w-full px-4 py-2 mb-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
           placeholder="Enter your email"
         />
 
-        <label className="block mb-2 text-sm font-semibold">Password</label>
+        <label className="block mb-1 text-sm font-medium text-gray-700">Password</label>
         <input
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full px-3 py-2 mb-4 border border-gray-300 rounded"
+          className="w-full px-4 py-2 mb-6 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
           placeholder="Enter your password"
         />
 
         <button
           type="submit"
-          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
+          className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition font-semibold"
         >
           Login
         </button>

@@ -1,5 +1,5 @@
 import { Routes, Route } from "react-router-dom";
-import Signup from "./signup";
+import Signup from "./Signup";
 import Home from "./Home"; 
 import Payment from "./Payment";
 import SearchForm from "./Productdisplay";
@@ -9,6 +9,8 @@ import Productdisplay from "./Productdisplay";
 import AdminDashboardPage from "./adminDashboardPage";
 import SalesOverTimeChart from "./SalesOverTime"
 import ChatRoom from "./ChatBox";
+import MyChats from "./MyChats";
+
 
 function App() {
   return (
@@ -23,6 +25,7 @@ function App() {
       <Route path="/admindashboard" element={<AdminDashboardPage/>} />
       <Route path="/getsales" element={<SalesOverTimeChart/>} />
      <Route path="/chat/:roomId" element={<ChatRoom />} />
+      <Route path="/displaychats" element={<MyChats />} />
 
 
  

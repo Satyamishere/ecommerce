@@ -59,7 +59,11 @@ function Signup() {
   };
 
   return (
+    
+
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
+      <div className="bg-red-500 text-white p-4">Tailwind Test</div>
+
       <div className="bg-white shadow-lg rounded-lg p-8 w-full max-w-md">
         <h2 className="text-2xl font-semibold text-center mb-6">Create Account</h2>
 

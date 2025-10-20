@@ -52,8 +52,6 @@ const createUser = async (req, res) => {
 
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
-  
-
 
   const isTheirUser = await User.findOne({ email });
   if (!isTheirUser) {
@@ -87,7 +85,7 @@ const loginUser = async (req, res) => {
   const loggedInUser = await User.findById(isTheirUser._id).select(
     "-password -refreshToken"
   );
-  
+
   return res
     .status(200)
     .cookie("accessToken", accessToken, options)
@@ -117,7 +115,7 @@ const uploadProduct = async (req, res) => {
     }
 
     const fullUser = await User.findById(user._id);
-    if (!fullUser.role.includes("seller") ) {
+    if (!fullUser.role.includes("seller")) {
       fullUser.role.push("seller");
       await fullUser.save();
     }
@@ -177,6 +175,7 @@ const searchForProduct = async (req, res) => {
           title: 1,
           price: 1,
           image: 1,
+          ownerId: "$postedBy", // ✅ Add this line
           "categoryDetails.name": 1,
         },
       },
@@ -207,7 +206,7 @@ const updateProduct = async (req, res) => {
   const { title, price } = req.body;
 
   try {
-    const user = await User.findById(userId); 
+    const user = await User.findById(userId);
     if (!user) {
       return res.status(401).json({ message: "User not found" });
     }
@@ -355,7 +354,6 @@ const getUserPurchases = async (req, res) => {
   }
 };
 
-
 const createChat = async (req, res) => {
   try {
     const { productId, buyerId, ownerId } = req.body;
@@ -366,12 +364,13 @@ const createChat = async (req, res) => {
       return res.status(200).json({ success: true, chat: existingChat });
     }
 
-   
     const newChat = await Chat.create({ productId, buyerId, ownerId });
     return res.status(201).json({ success: true, chat: newChat });
   } catch (error) {
     console.error("Error creating chat:", error);
-    return res.status(500).json({ success: false, message: "Internal Server Error" });
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal Server Error" });
   }
 };
 
@@ -380,7 +379,7 @@ const getSellerChats = async (req, res) => {
     const { sellerId } = req.params;
 
     const chats = await Chat.find({ ownerId: sellerId })
-      .populate("buyerId", "username email") // adds username amd email to buyserId .now it is like buyerId:{_id:--,uername:---,email:---}
+      .populate("buyerId", "username email") // adds username amd email to buyserId .Now it is like buyerId:{_id:--,uername:---,email:---}
       .populate("productId", "title"); // same as above
 
     const response = chats.map((chat) => ({
@@ -400,8 +399,6 @@ const getSellerChats = async (req, res) => {
   }
 };
 
-
-
 export {
   createUser,
   loginUser,
@@ -412,5 +409,5 @@ export {
   becomeSeller,
   getUserPurchases,
   createChat,
-  getSellerChats
+  getSellerChats,
 };

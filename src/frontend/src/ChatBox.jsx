@@ -11,11 +11,18 @@ const ChatRoom = () => {
   const currentUser = JSON.parse(localStorage.getItem("user"));
 
   useEffect(() => {
+    if (!roomId) return;
+
     socket.emit("join_room", roomId);
+    console.log(`📡 Joined room: ${roomId}`);
 
     socket.on("receive_message", (data) => {
-      setMessages((prev) => [...prev, { sender: "other", text: data.message }]);
-    });
+  // Ignore self message already shown locally
+  if (data?.sender?._id === currentUser._id) return;
+
+  setMessages((prev) => [...prev, data]);
+});
+
 
     return () => {
       socket.off("receive_message");
@@ -25,26 +32,42 @@ const ChatRoom = () => {
   const sendMessage = () => {
     if (!message.trim()) return;
 
-    socket.emit("send_message", { roomId, message });
-    setMessages((prev) => [...prev, { sender: "me", text: message }]);
+    const msgObj = {
+      roomId,
+      message,
+      sender: {
+        _id: currentUser._id,
+        username: currentUser.username,
+      },
+    };
+
+    socket.emit("send_message", msgObj);
+    setMessages((prev) => [...prev, msgObj]);
     setMessage("");
   };
 
   return (
     <div className="max-w-xl mx-auto mt-8">
       <h2 className="text-lg font-bold mb-4">Chat Room</h2>
-      <div className="border rounded h-96 overflow-y-auto p-4 mb-4">
-        {messages.map((msg, index) => (
-          <div
-            key={index}
-            className={`mb-2 text-sm ${
-              msg.sender === "me" ? "text-right text-blue-600" : "text-left text-gray-800"
-            }`}
-          >
-            {msg.text}
-          </div>
-        ))}
+
+      <div className="border rounded h-96 overflow-y-auto p-4 mb-4 bg-gray-50">
+        {messages.map((msg, index) => {
+          const isMe = msg?.sender?._id === currentUser._id;
+
+          return (
+            <div
+              key={index}
+              className={`mb-2 text-sm ${
+                isMe ? "text-right text-blue-600" : "text-left text-gray-800"
+              }`}
+            >
+              <span className="font-medium">{msg?.sender?.username || "Unknown"}:</span>{" "}
+              {msg.message}
+            </div>
+          );
+        })}
       </div>
+
       <div className="flex gap-2">
         <input
           type="text"

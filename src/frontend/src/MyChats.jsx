@@ -11,10 +11,16 @@ const MyChats = () => {
   useEffect(() => {
     const fetchChats = async () => {
       try {
-        const { data } = await axios.get(`http://localhost:7000/api/v1/chat/seller/${user._id}`, {
+        console.log(user._id);
+        console.log("Logged-in user:", user);
+
+        
+        const { data } = await axios.get(`http://localhost:7000/api/v1/users/seller/${user._id}`, {
           withCredentials: true
         });
         setChats(data.data || []);
+        console.log(data.data);
+        
       } catch (err) {
         console.error("Error fetching chats", err);
       }

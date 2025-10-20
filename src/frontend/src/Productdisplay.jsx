@@ -47,11 +47,11 @@ const Productdisplay = () => {
 
     try {
       const res = await axios.post(
-        "http://localhost:7000/api/v1/chat/create",
+        "http://localhost:7000/api/v1/users/createchat", 
         {
           productId: product._id,
           buyerId: currentUser._id,
-          ownerId: product.ownerId, // assuming product has ownerId
+          ownerId: product.ownerId,
         },
         { withCredentials: true }
       );

@@ -24,4 +24,5 @@ router.route("/searchproduct").post(verifyJWT, searchForProduct);
 router.route("/createchat").post(verifyJWT, createChat);
 router.route("/seller/:sellerId").get(verifyJWT, getSellerChats);
 
+
 export default router;
