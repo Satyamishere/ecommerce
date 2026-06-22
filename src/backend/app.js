@@ -11,23 +11,9 @@ dotenv.config();
 const app = express();
 
 // Allow multiple origins via CORS_ORIGIN (comma-separated) and enable credentials
-const defaultOrigins = [
-  "http://localhost:5173",
-  "https://ecommerce-frontend-bdhf.onrender.com",
-];
-
-const allowedOriginsSet = new Set(
-  (process.env.CORS_ORIGIN || defaultOrigins.join(","))
-    .split(",")
-    .map((s) => s.trim())
-    .filter(Boolean)
-);
-
-// Ensure deployed frontend origin is always allowed (keeps change simple)
-allowedOriginsSet.add("https://ecommerce-frontend-bdhf.onrender.com");
-allowedOriginsSet.add("http://localhost:5173");
-
-const allowedOrigins = Array.from(allowedOriginsSet);
+const allowedOrigins = (process.env.CORS_ORIGIN || "http://localhost:5173,https://ecommerce-frontend-bdhf.onrender.com")
+  .split(",")
+  .map((s) => s.trim());
 
 app.use(
   cors({

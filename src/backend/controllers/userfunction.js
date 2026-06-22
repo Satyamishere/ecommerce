@@ -201,46 +201,48 @@ const uploadProduct = async (req, res) => {
 const searchForProduct = async (req, res) => {
   try {
     const { category, title, priceRange, sortBy } = req.body;
-    let filters = {}
-    //price ranage is  {min,max} 
+
+    let filters = {};
+
     if (category) {
       const categoryDocument = await Category.findOne({ name: category });
+
       if (categoryDocument) {
         filters.category = categoryDocument._id;
       }
     }
 
-    //filters.category = categoryDocument._id;
     if (title) {
-      filters.title = { $regex: title, $options: "i" }
+      filters.title = { $regex: title, $options: "i" };
     }
+
     if (priceRange) {
       if (priceRange.min != undefined && priceRange.max != undefined) {
-        filters.price = { $gte: priceRange.min, $lte: priceRange.max }
-      }
-      else if (priceRange.min != undefined) {
-        filters.price = { $gte: priceRange.min }
-      }
-      else if (priceRange.max != undefined) {
-        filters.price = { $lte: priceRange.max }
+        filters.price = {
+          $gte: priceRange.min,
+          $lte: priceRange.max,
+        };
+      } else if (priceRange.min != undefined) {
+        filters.price = {
+          $gte: priceRange.min,
+        };
+      } else if (priceRange.max != undefined) {
+        filters.price = {
+          $lte: priceRange.max,
+        };
       }
     }
+
     let sort = {};
+
     if (sortBy === "priceLow") sort.price = 1;
     if (sortBy === "priceHigh") sort.price = -1;
     if (sortBy === "newest") sort.createdAt = -1;
-    //if(sort.length === 0) sort.createdAt = -1; // default sorting by newest
-    let len = 0;
-    for (let key in sort) {
-      len++;
-    }
 
-    //Build the aggregation pipeline
     const pipeline = [
       {
-        $match: filters
+        $match: filters,
       },
-      //attaches categoryDetails in all above filtered products which is whats the catoegry name  for that product.
       {
         $lookup: {
           from: "categories",
@@ -249,7 +251,17 @@ const searchForProduct = async (req, res) => {
           as: "categoryDetails",
         },
       },
-      { $unwind: "$categoryDetails" },
+      {
+        $unwind: "$categoryDetails",
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "reviews.user",
+          foreignField: "_id",
+          as: "reviewUsers",
+        },
+      },
       {
         $project: {
           _id: 1,
@@ -258,10 +270,22 @@ const searchForProduct = async (req, res) => {
           image: 1,
           ownerId: "$postedBy",
           "categoryDetails.name": 1,
+          reviews: 1,
+          reviewUsers: {
+            $map: {
+              input: "$reviewUsers",
+              as: "u",
+              in: {
+                _id: "$$u._id",
+                username: "$$u.username",
+              },
+            },
+          },
         },
-      }
+      },
     ];
-    if (len > 0) {
+
+    if (Object.keys(sort).length > 0) {
       pipeline.push({ $sort: sort });
     }
 
@@ -272,20 +296,25 @@ const searchForProduct = async (req, res) => {
 
       if (category) msg += ` with category ${category}`;
       if (title) msg += ` with title matching ${title}`;
-      if (priceRange) msg += ` in price range ${priceRange.min} to ${priceRange.max}`;
+      if (priceRange)
+        msg += ` in price range ${priceRange.min} to ${priceRange.max}`;
+
       return res.status(404).json({
-        message:msg
-          
+        message: msg,
       });
     }
 
     return res.status(200).json({
-      message: "Products found successfully",
+      success: true,
       data: products,
     });
-  } catch (error) {
-    console.error("Search error:", error);
-    return res.status(500).json({ message: "Internal server error" });
+  } catch (err) {
+    console.log(err);
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
   }
 };
 const updateProduct = async (req, res) => {
@@ -604,6 +633,7 @@ const getViewProducts = async (req, res) => {
     });
   }
 };
+/*
 const updateViewedProduct=async (req,res)=>{
   let productId = req.query.productId;
 let userId = req.user._id;
@@ -632,6 +662,46 @@ return res.status(201).json({
   message: "successfully updated"
 });
 }
+*/
+const updateProductReview = async (req, res) => {
+  try {
+    const userId = req.user?._id;
+    // support both POST body and GET query params (use optional chaining)
+    const productId = req.body?.productid || req.query?.productid || req.body?.productId || req.query?.productId;
+    const reviewDesc = req.body?.description || req.query?.description || req.body?.review || req.query?.review;
+    const rating = req.body?.rating || req.query?.rating;
+
+    if (!userId || !productId || !reviewDesc || !rating) {
+      return res.status(400).json({ success: false, message: "Missing parameters for review" });
+    }
+
+    const temp = await Product.updateOne(
+      { _id: productId },
+      {
+        $push: {
+          reviews: {
+            user: userId,
+            review: reviewDesc,
+            rating: Number(rating),
+          },
+        },
+      }
+    );
+    console.log(temp);
+    
+
+    return res.status(200).json({
+      success: true,
+      message: "Review added"
+    });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to add review"
+    });
+  }
+};
 
 export {
   createUser,
@@ -650,5 +720,5 @@ export {
   getSellingProducts,
   totalProdcutSold,
   getViewProducts,
-  updateViewedProduct
+  updateProductReview
 };

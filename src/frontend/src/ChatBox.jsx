@@ -10,7 +10,7 @@ const ChatRoom = () => {
 
   useEffect(() => {
     if (!roomId) return;
-
+      
     socket.emit("join_room", roomId);
     console.log(`📡 Joined room: ${roomId}`);     
 
