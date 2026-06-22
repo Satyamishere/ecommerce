@@ -111,7 +111,10 @@ const loginUser = async (req, res) => {
     return res.status(404).json({ message: "User not found" });
   }
 
-  const isPasswordCorrect = await bcrypt.compare(
+    const prod =
+      process.env.NODE_ENV === "production" ||
+      (process.env.CORS_ORIGIN || "").includes("https://");
+    const isPasswordCorrect = await bcrypt.compare(
     password,
     isTheirUser.password
   );
@@ -128,8 +131,8 @@ const loginUser = async (req, res) => {
 
   const options = {
     httpOnly: true, // Cookie cannot be accessed via JS
-    secure: false, // Set to `true` in production (HTTPS only)
-    sameSite: "Lax", // "None" if using HTTPS + cross-site
+    secure: prod, // Set to true when frontend is HTTPS
+    sameSite: prod ? "None" : "Lax", // None for cross-site in prod
     maxAge: 24 * 60 * 60 * 1000, // 1 day expiry
     path: "/", // Available on all routes
     //domain: "localhost"
