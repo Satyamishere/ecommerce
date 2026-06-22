@@ -36,12 +36,9 @@ function App() {
   useEffect(() => {
   async function fetchCurrentUser() {
     try {
-      const res = await axios.get(
-        "http://localhost:7000/api/v1/users/currentuser",
-        {
+        const res = await axios.get("/api/v1/users/currentuser", {
           withCredentials: true,
-        }
-      );
+        });
 
       setUser(res.data.data);
     } catch (err) {

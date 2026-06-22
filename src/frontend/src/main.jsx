@@ -1,3 +1,4 @@
+import './api';
 import { BrowserRouter } from "react-router-dom";
 import { createRoot } from 'react-dom/client'
 import {AuthProvider} from "./FetchUser"

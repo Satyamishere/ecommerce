@@ -30,10 +30,9 @@ function Signup() {
 
     try {
       const response = await axios.post(
-        "http://localhost:7000/api/v1/users/register",
+        "/api/v1/users/register",
         formData,
         {
-          withCredentials: true,
           headers: {
             "Content-Type": "application/json",
             Accept: "application/json",

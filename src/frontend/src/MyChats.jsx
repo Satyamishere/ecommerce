@@ -13,9 +13,7 @@ const MyChats = () => {
     const fetchChats = async () => {
       if (!user?._id) return;
       try {
-        const { data } = await axios.get(`http://localhost:7000/api/v1/users/seller/${user._id}`, {
-          withCredentials: true,
-        });
+        const { data } = await axios.get(`/api/v1/users/seller/${user._id}`);
         setChats(data.data || []);
       } catch (err) {
         console.error("Error fetching chats", err);

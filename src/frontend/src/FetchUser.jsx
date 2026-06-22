@@ -12,7 +12,7 @@ export const AuthProvider = ({ children }) => {
         let mounted = true;
         const fetchCurrentUser = async () => {
             try {
-                const res = await axios.get("http://localhost:7000/api/v1/users/currentuser", { withCredentials: true });
+                const res = await axios.get("/api/v1/users/currentuser");
                 if (!mounted) return;
                 setUser(res.data?.data ?? null);
             } catch (err) {
@@ -27,14 +27,14 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     const login = async (credentials) => {
-        const res = await axios.post("http://localhost:7000/api/v1/users/login", credentials, { withCredentials: true });
+        const res = await axios.post("/api/v1/users/login", credentials);
         setUser(res.data?.data ?? null);
         return res;
     };
 
     const logout = async () => {
         try {
-            await axios.post("http://localhost:7000/api/v1/users/logout", {}, { withCredentials: true });
+            await axios.post("/api/v1/users/logout", {});
         } catch (e) {
             // ignore if backend doesn't implement logout
         }

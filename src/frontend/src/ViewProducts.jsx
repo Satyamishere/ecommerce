@@ -16,8 +16,7 @@ function ViewProducts() {
       setError(null);
       try {
         const res = await axios.get(
-          `http://localhost:7000/api/v1/users/getviewproduct?page=${page}&limit=${limit}`,
-          { withCredentials: true }
+          `/api/v1/users/getviewproduct?page=${page}&limit=${limit}`
         );
         if (!mounted) return;
         setProducts(res.data.data || []);
@@ -37,10 +36,7 @@ function ViewProducts() {
 
   const handleView = async (productId) => {
     try {
-      await axios.get(
-        `http://localhost:7000/api/v1/users/updateviewedproduct?productId=${productId}`,
-        { withCredentials: true }
-      );
+      await axios.get(`/api/v1/users/updateviewedproduct?productId=${productId}`);
     } catch (err) {
       console.error('Error updating viewed product', err);
     }

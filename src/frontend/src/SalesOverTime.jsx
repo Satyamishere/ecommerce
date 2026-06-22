@@ -16,9 +16,7 @@ const SalesOverTimeChart = () => {
   useEffect(() => {
     const fetchSalesData = async () => {
       try {
-        const response = await axios.get("http://localhost:7000/api/v1/payment/getsales", {
-          withCredentials: true,
-        });
+        const response = await axios.get("/api/v1/payment/getsales");
 
         const transformed = response.data.data.map((item) => ({
           weekLabel: `Week ${item._id.week}, ${item._id.year}`,

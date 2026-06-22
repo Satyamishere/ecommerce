@@ -22,12 +22,11 @@ function Login() {
 
     try {
       const res = await axios.post(
-        "http://localhost:7000/api/v1/users/login",
+        "/api/v1/users/login",
         {
           email,
           password,
-        },
-        { withCredentials: true }
+        }
       );
 
       if (res.status === 200) {

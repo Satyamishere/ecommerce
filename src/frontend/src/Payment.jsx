@@ -13,7 +13,7 @@ const Payment = () => {
 
     try {
       const { data } = await axios.post(
-        "http://localhost:7000/api/v1/payment/createorder",
+        "/api/v1/payment/createorder",
         {
           productId,
           amount: Number(amount),
@@ -38,7 +38,7 @@ const Payment = () => {
         order_id: data.order.id,
         handler: async (response) => {
           await axios.post(
-            "http://localhost:7000/api/v1/payment/verifypayment",
+            "/api/v1/payment/verifypayment",
             {
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_order_id: response.razorpay_order_id,

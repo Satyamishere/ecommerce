@@ -20,9 +20,8 @@ function PostProduct() {
 
     try {
       const response = await axios.post(
-        "http://localhost:7000/api/v1/users/sell", 
-        { title, description, price, category },
-        { withCredentials: true } 
+        "/api/v1/users/sell",
+        { title, description, price, category }
       );
 
       setMessage(response.data.message);

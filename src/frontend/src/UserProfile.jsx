@@ -21,9 +21,9 @@ function UserProfile() {
     async function fetchProfileData() {
       try {
         const [purchasedRes, onSellRes, soldRes] = await Promise.all([
-          axios.get("http://localhost:7000/api/v1/users/getpurchasesproducts", { withCredentials: true }),
-          axios.get("http://localhost:7000/api/v1/users/getsellingproducts", { withCredentials: true }),
-          axios.get("http://localhost:7000/api/v1/users/gettotalproductssold", { withCredentials: true }),
+          axios.get("/api/v1/users/getpurchasesproducts"),
+          axios.get("/api/v1/users/getsellingproducts"),
+          axios.get("/api/v1/users/gettotalproductssold"),
         ]);
 
         if (!mounted) return;

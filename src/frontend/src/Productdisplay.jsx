@@ -29,9 +29,8 @@ const Productdisplay = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:7000/api/v1/users/searchproduct",
-        searchData,
-        { withCredentials: true }
+        "/api/v1/users/searchproduct",
+        searchData
       );
       setResults(response.data.data || []);
     } catch (err) {
@@ -49,13 +48,12 @@ const Productdisplay = () => {
 
     try {
       const res = await axios.post(
-        "http://localhost:7000/api/v1/users/createchat",
+        "/api/v1/users/createchat",
         {
           productId: product._id,
           buyerId: currentUser._id,
           ownerId: product.ownerId,
-        },
-        { withCredentials: true }
+        }
       );
 
       const roomId = `${currentUser._id}_${product.ownerId}_${product._id}`;
