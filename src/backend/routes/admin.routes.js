@@ -8,7 +8,7 @@ import {
 } from "../controllers/adminfunction.js";
 
 import { verifyJWT } from "../middleware/verifytoken.js";
-import { isAdmin } from "../middleware/isAdmin.js";
+import { isAdmin } from "../middleware/isadmin.js";
 
 const router = Router();
 
