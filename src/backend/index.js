@@ -27,19 +27,28 @@ io.on("connection", (socket) => {
 
   socket.on("join_room", (roomId) => {
     socket.join(roomId);
+    console.log("user joined", roomId);
     console.log(`Joined room: ${roomId}`);
   });
+  
 
   
-  socket.on("send_message", ({ roomId, message, sender }) => {
-    socket.to(roomId).emit("receive_message", {
-      message,
-      sender: {
-        _id: sender._id,
-        username: sender.username,
-      },
+ socket.on("send_message", (data) => {
+
+    console.log("Received message:", data);
+
+    socket.to(data.roomId).emit("receive_message", {
+        message: data.message,
+        sender: data.sender
     });
-  });
+    console.log("notification emmited to", `user_${data.receiverId}`)
+
+    io.to(`user_${data.receiverId}`)
+      .emit("new_notification", {
+          roomId: data.roomId,
+          message: `New message from ${data.sender.username}`,
+      });
+});
 
   socket.on("disconnect", () => {
     console.log("Client disconnected");

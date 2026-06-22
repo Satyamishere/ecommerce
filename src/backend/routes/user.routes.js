@@ -6,6 +6,13 @@ import {
   searchForProduct,
   createChat,
   getSellerChats,
+  getCurrentUser,
+  addReview,
+  getPurchasesProducts,
+  getSellingProducts,
+  totalProdcutSold,
+  getViewProducts,
+  updateViewedProduct
 } from "../controllers/userfunction.js";
 
 import { verifyJWT } from "../middleware/verifytoken.js";
@@ -23,6 +30,15 @@ router.route("/searchproduct").post(verifyJWT, searchForProduct);
 // Chat
 router.route("/createchat").post(verifyJWT, createChat);
 router.route("/seller/:sellerId").get(verifyJWT, getSellerChats);
+router.route("/currentuser").get(verifyJWT, getCurrentUser);
+
+//
+router.route("/getviewproduct").get(verifyJWT, getViewProducts);
+router.route("/updateviewedproduct").get(verifyJWT, updateViewedProduct);
+router.route("/getpurchasesproducts").get(verifyJWT, getPurchasesProducts);
+router.route("/getsellingproducts").get(verifyJWT, getSellingProducts);
+router.route("/gettotalproductssold").get(verifyJWT, totalProdcutSold);
+
 
 
 export default router;

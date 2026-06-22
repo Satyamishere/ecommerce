@@ -27,7 +27,11 @@ const paymentSchema = new Schema({
     type: Date,
     default: Date.now,
   }
+  ,
+  
 }, {
   timestamps: true // 
-});
+},
+
+);
 export const Payment=mongoose.model("payments",paymentSchema)

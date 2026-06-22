@@ -1,0 +1,53 @@
+.home-container {
+  background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+}
+
+.home-title {
+  font-size: 2rem;
+  color: #111827;
+  text-align: center;
+}
+
+.home-btn {
+  width: 16rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 9999px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.home-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+}
+
+.home-btn.secondary {
+  width: auto;
+  border-radius: 0.75rem;
+  background: #ffffff;
+  color: #111827;
+  border: 1px solid #e5e7eb;
+}
+
+.notifications-box {
+  max-width: 28rem;
+  width: 100%;
+}
+
+.notification-item {
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+  color: #374151;
+}
+
+.notification-link {
+  display: inline-block;
+  margin-top: 0.25rem;
+  background: none;
+  border: none;
+  color: #2563eb;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+  font-size: 0.95rem;
+}

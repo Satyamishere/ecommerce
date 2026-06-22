@@ -5,6 +5,58 @@ import bcrypt from "bcrypt";
 import { Category } from "../models/category.js";
 import { Payment } from "../models/payment.js";
 import { Chat } from "../models/chatModel.js";
+import { Order } from "../models/orderModel.js";
+import { View } from "../models/viewModel.js";
+
+/*
+need to create user profile
+    
+    
+*/
+
+
+
+//add review to a product
+const addReview = async (req, res) => {
+  let { productId, rating, review } = req.body;
+  rating = Number(rating);
+  const userId = req.user._id;
+  const product = await Product.findById(productId);
+  if (!product) {
+    return res.status(404).json({ message: "Product not found" });
+  }
+  for (const rev of product.reviews) {
+    if (rev.user.toString() === userId.toString()) {
+      return res.status(400).json({ message: "You have already reviewed this product" });
+    }
+  }
+
+  const temp = {
+    user: userId,
+    review: review,
+    rating: rating
+  }
+  product.reviews.push(temp);
+  await product.save();
+  return res.status(200).json({ message: "Review added successfully", data: product });
+
+}
+const getCurrentUser = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const user = await User.findById(userId).select("-password -refreshToken");
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    } else {
+      return res.status(200).json({ message: "Current user retrieved", data: user });
+    } 
+  } catch (error) {
+    console.error("Error fetching current user:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+}
+
+
 
 const generateAccessAndRefreshToken = async (userId) => {
   const user = await User.findById(userId);
@@ -34,6 +86,7 @@ const createUser = async (req, res) => {
     password,
     role: ["buyer"], //Important for authorization flow
   });
+
 
   const createdUser = await User.findById(user._id).select(
     "-password -refreshToken"
@@ -144,20 +197,45 @@ const uploadProduct = async (req, res) => {
 
 const searchForProduct = async (req, res) => {
   try {
-    const { category, title } = req.body;
+    const { category, title, priceRange, sortBy } = req.body;
+    let filters = {}
+    //price ranage is  {min,max} 
+    if (category) {
+      const categoryDocument = await Category.findOne({ name: category });
+      if (categoryDocument) {
+        filters.category = categoryDocument._id;
+      }
+    }
 
-    const categoryDocument = await Category.findOne({ name: category });
-    if (!categoryDocument) {
-      return res.status(404).json({ message: "No such category found" });
+    //filters.category = categoryDocument._id;
+    if (title) {
+      filters.title = { $regex: title, $options: "i" }
+    }
+    if (priceRange) {
+      if (priceRange.min != undefined && priceRange.max != undefined) {
+        filters.price = { $gte: priceRange.min, $lte: priceRange.max }
+      }
+      else if (priceRange.min != undefined) {
+        filters.price = { $gte: priceRange.min }
+      }
+      else if (priceRange.max != undefined) {
+        filters.price = { $lte: priceRange.max }
+      }
+    }
+    let sort = {};
+    if (sortBy === "priceLow") sort.price = 1;
+    if (sortBy === "priceHigh") sort.price = -1;
+    if (sortBy === "newest") sort.createdAt = -1;
+    //if(sort.length === 0) sort.createdAt = -1; // default sorting by newest
+    let len = 0;
+    for (let key in sort) {
+      len++;
     }
 
     //Build the aggregation pipeline
     const pipeline = [
       {
-        $match: {
-          category: categoryDocument._id,
-          ...(title && { title: { $regex: title, $options: "i" } }), // it finds all products with given category and title
-        },
+        $match: filters
       },
       //attaches categoryDetails in all above filtered products which is whats the catoegry name  for that product.
       {
@@ -175,19 +253,26 @@ const searchForProduct = async (req, res) => {
           title: 1,
           price: 1,
           image: 1,
-          ownerId: "$postedBy", // ✅ Add this line
+          ownerId: "$postedBy",
           "categoryDetails.name": 1,
         },
-      },
+      }
     ];
+    if (len > 0) {
+      pipeline.push({ $sort: sort });
+    }
 
     const products = await Product.aggregate(pipeline);
 
     if (products.length === 0) {
+      let msg = "No products found";
+
+      if (category) msg += ` with category ${category}`;
+      if (title) msg += ` with title matching ${title}`;
+      if (priceRange) msg += ` in price range ${priceRange.min} to ${priceRange.max}`;
       return res.status(404).json({
-        message:
-          "No products found in this category" +
-          (title ? ` matching '${title}'` : ""),
+        message:msg
+          
       });
     }
 
@@ -398,6 +483,152 @@ const getSellerChats = async (req, res) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 };
+const getPurchasesProducts = async (req, res) => {
+  const userId = req.user._id;
+
+  let pipeline = [
+    {
+      $match: {
+        buyer: userId
+      }
+    },
+    {
+      $lookup: {
+        from: "products",
+        localField: "product",
+        foreignField: "_id",
+        as: "product_details"
+      }
+    },
+    {
+      $lookup: {
+        from: "payments",
+        localField: "payment",
+        foreignField: "_id",
+        as: "payment_details"
+      }
+    },
+    {
+      $unwind: "$payment_details"
+    },
+    {
+      $unwind: "$product_details"
+    },
+    {
+      $project: {
+        _id: 0,
+        orderId: "$_id",
+        orderStatus: "$status",
+
+        amount: "$payment_details.amount",
+        paidAt: "$payment_details.paidAt",
+        paymentId: "$payment_details._id",
+
+        title: "$product_details.title",
+        description: "$product_details.description",
+        price: "$product_details.price",
+      }
+    }
+  ];
+
+  const userOrders = await Order.aggregate(pipeline);
+
+  console.log(userOrders);
+
+  return res.status(200).json({
+    success: true,
+    data: userOrders
+  });
+};
+const getSellingProducts =async(req,res)=>{
+   try {
+    const userID=req.user._id;
+    const sellingProd=await Product.find({postedBy:userID}).populate("category", "name");
+    return res.status(200).json({
+      success: true,
+      data: sellingProd,
+    });
+   } catch (error) {
+    console.log("error fetching selling data")
+    return res.status(500).json({ message: "Internal server error" });
+   }
+   
+}
+const totalProdcutSold = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    const sold = await Order.find({ seller: userId })
+      .populate("buyer", "username email")
+      .populate("product", "title description price image")
+      .populate("payment", "amount paidAt paymentId");
+
+    return res.status(200).json({
+      success: true,
+      data: sold,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      success: false,
+      message: "Couldn't fetch sold products",
+    });
+  }
+};
+//for viewing  
+const getViewProducts = async (req, res) => {
+  let page = Number(req.query.page);
+  let lim = Number(req.query.limit);
+
+  if (!page || !lim) {
+    return res.status(400).json({ message: "fill it up properly" });
+  }
+
+  try {
+    let result = await Product.find()
+      .populate("category", "name")
+      .skip((page - 1) * lim)
+      .limit(lim);
+
+    return res.status(200).json({
+      data: result,
+      message: "success"
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(400).json({
+      message: "failed to fetch limit result"
+    });
+  }
+};
+const updateViewedProduct=async (req,res)=>{
+  let productId = req.query.productId;
+let userId = req.user._id;
+
+if (!userId || !productId) {
+  return res.status(400).json({
+    message: "empty productId or userID"
+  });
+}
+
+await View.findOneAndUpdate(
+  {
+    user: userId,
+    product: productId
+  },
+  {
+    $inc: { count: 1 }
+  },
+  {
+    upsert: true,
+    new: true
+  }
+);
+
+return res.status(201).json({
+  message: "successfully updated"
+});
+}
 
 export {
   createUser,
@@ -410,4 +641,11 @@ export {
   getUserPurchases,
   createChat,
   getSellerChats,
+  getCurrentUser,
+  addReview,
+  getPurchasesProducts,
+  getSellingProducts,
+  totalProdcutSold,
+  getViewProducts,
+  updateViewedProduct
 };

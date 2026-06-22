@@ -1,10 +1,10 @@
-
-
 import Razorpay from "razorpay";
 import { Product } from "../models/product.js";
+import { Order } from "../models/orderModel.js";
 import { Payment } from "../models/payment.js";
 import dotenv from "dotenv";
 import crypto from "crypto";
+
 
 dotenv.config();
 
@@ -98,7 +98,24 @@ const verifyPayment = async (req, res) => {
       paidAt: new Date(), 
     });
 
-    await Product.findByIdAndUpdate(productId, { status: "paid" });
+    const pData=await  Product.findByIdAndUpdate(productId, { status: "paid" });
+    //need to create order after payment was verified
+    //uderId,productId,to get seller id fetch using product id
+    
+    const sellerId=pData.postedBy;
+    
+    const paymentId=payment._id;
+    //now we have all things to crete an order doc
+    await Order.create({
+      buyer:req.user._id,
+      seller:sellerId,
+      product:productId,
+      payement:paymentId,
+      status:"processing"
+    }
+    )
+    
+
 
     return res.status(200).json({ success: true, payment });
   } catch (error) {

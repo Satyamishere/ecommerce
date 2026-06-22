@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "./FetchUser";
 
 const Productdisplay = () => {
   const [searchData, setSearchData] = useState({ title: "", category: "" });
@@ -8,8 +9,9 @@ const Productdisplay = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const [showReviews, setShowReviews] = useState([]);
 
-  const currentUser = JSON.parse(localStorage.getItem("user"));
+  const { user: currentUser } = useAuth();
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -47,7 +49,7 @@ const Productdisplay = () => {
 
     try {
       const res = await axios.post(
-        "http://localhost:7000/api/v1/users/createchat", 
+        "http://localhost:7000/api/v1/users/createchat",
         {
           productId: product._id,
           buyerId: currentUser._id,
@@ -63,6 +65,31 @@ const Productdisplay = () => {
       alert("Failed to start chat");
     }
   };
+  const toggleReviews = (productId) => {
+    let updatedShowReviews = showReviews.filter((id) => { return id !== productId })
+    if (updatedShowReviews.length === showReviews.length) {
+      updatedShowReviews.push(productId);
+    }
+    setShowReviews(updatedShowReviews);
+  }
+  const displayReviews = (reviews, productId) => {
+    let temp = []
+    let i = 0;
+    if (!showReviews.includes(productId)) {
+      return temp;
+    }
+    for (const review of reviews) {
+      temp.push(
+        <li key={i++}>
+          <p>User: {review.user}</p>
+          <p>Rating: {review.rating}</p>
+          <p>Review: {review.review}</p>
+        </li>
+      )
+    }
+    return temp;
+  }
+
 
   return (
     <div className="p-4">
@@ -106,6 +133,15 @@ const Productdisplay = () => {
             >
               Chat with Owner
             </button>
+            
+            <div className="mt-4">
+              {showReviews.includes(product._id) && displayReviews(product.reviews, product._id)}
+            </div>
+
+            <button onClick={() => toggleReviews(product._id)}>
+              <h4 className="font-semibold">Show Reviews</h4>
+            </button>
+
           </div>
         ))}
       </div>

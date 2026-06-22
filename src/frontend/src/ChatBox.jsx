@@ -1,27 +1,26 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import io from "socket.io-client";
-
-const socket = io("http://localhost:7000", { withCredentials: true });
-
+import { socket } from "./utility/socket";
+import { useAuth } from "./FetchUser";
 const ChatRoom = () => {
   const { roomId } = useParams();
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
-  const currentUser = JSON.parse(localStorage.getItem("user"));
+  const { user: currentUser } = useAuth();
 
   useEffect(() => {
     if (!roomId) return;
 
     socket.emit("join_room", roomId);
-    console.log(`📡 Joined room: ${roomId}`);
+    console.log(`📡 Joined room: ${roomId}`);     
 
+    
     socket.on("receive_message", (data) => {
-  // Ignore self message already shown locally
-  if (data?.sender?._id === currentUser._id) return;
+      // Ignore self message already shown locally
+      if (currentUser && data?.sender?._id === currentUser._id) return;
 
-  setMessages((prev) => [...prev, data]);
-});
+      setMessages((prev) => [...prev, data]);
+    });
 
 
     return () => {
@@ -31,8 +30,14 @@ const ChatRoom = () => {
 
   const sendMessage = () => {
     if (!message.trim()) return;
+  // const roomId = `${currentUser._id}_${product.ownerId}_${product._id}`;
+    if (!currentUser?._id) {
+      alert("Please login to send messages");
+      return;
+    }
 
     const msgObj = {
+      receiverId: roomId.split("_")[1],
       roomId,
       message,
       sender: {

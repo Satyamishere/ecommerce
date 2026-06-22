@@ -2,15 +2,15 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import dotenv from 'dotenv';
-import userRouter from './src/backend/routes/user.routes.js';
-import paymentRouter from './src/backend/routes/payment.routes.js';
-import adminRouter from './src/backend/routes/admin.routes.js'
-import { createAdmin } from "./src/backend/controllers/adminfunction.js";
+import userRouter from './routes/user.routes.js';
+import paymentRouter from './routes/payment.routes.js';
+import adminRouter from './routes/admin.routes.js'
+import { createAdmin } from "./controllers/adminfunction.js";
 dotenv.config();
 
 const app = express();
 
-app.use(cors({
+app.use(cors({ 
   origin: process.env.CORS_ORIGIN,
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE"],
@@ -29,6 +29,7 @@ app.use("/api/v1/users", userRouter);
 app.use("/api/v1/payment", paymentRouter);
 app.use("/api/v1/admin",adminRouter)
 
-createAdmin();
+
+//createAdmin();
 
 export { app };

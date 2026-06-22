@@ -1,34 +1,31 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "./FetchUser";
 
 const MyChats = () => {
   const [chats, setChats] = useState([]);
   const navigate = useNavigate();
 
-  const user = JSON.parse(localStorage.getItem("user")); // logged-in seller
+  const { user } = useAuth(); // logged-in seller
 
   useEffect(() => {
     const fetchChats = async () => {
+      if (!user?._id) return;
       try {
-        console.log(user._id);
-        console.log("Logged-in user:", user);
-
-        
         const { data } = await axios.get(`http://localhost:7000/api/v1/users/seller/${user._id}`, {
-          withCredentials: true
+          withCredentials: true,
         });
         setChats(data.data || []);
-        console.log(data.data);
-        
       } catch (err) {
         console.error("Error fetching chats", err);
       }
     };
 
     fetchChats();
-  }, [user._id]);
-
+  }, [user?._id]);
+  
+  
   const joinChat = (roomId) => {
     navigate(`/chat/${roomId}`);
   };

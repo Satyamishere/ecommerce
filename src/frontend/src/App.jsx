@@ -1,34 +1,80 @@
 import { Routes, Route } from "react-router-dom";
 import Signup from "./Signup";
-import Home from "./Home"; 
+import Home from "./Home";
 import Payment from "./Payment";
-import SearchForm from "./Productdisplay";
 import Login from "./Login";
 import PostProduct from "./PostProduct";
 import Productdisplay from "./Productdisplay";
-import AdminDashboardPage from "./adminDashboardPage";
+import AdminDashboardPage from "./AdminDashboardPage";
 import SalesOverTimeChart from "./SalesOverTime"
 import ChatRoom from "./ChatBox";
 import MyChats from "./MyChats";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { useAuth } from "./FetchUser";
+import { socket } from "./utility/socket";
+import ViewProducts from "./ViewProducts";
+import UserProfile from "./UserProfile";
 
 
 function App() {
+  const { user, setUser } = useAuth();
+  useEffect(() => {
+    
+    function creatRoomForCurrentUser() {
+      try{
+        if (!user) return;
+        socket.emit("joinRoom", { roomId: `user_${user._id}` });
+      }
+      catch(err){
+        console.log(err)  
+    }
+  }
+  creatRoomForCurrentUser();
+}, [user])
+
+  useEffect(() => {
+  async function fetchCurrentUser() {
+    try {
+      const res = await axios.get(
+        "http://localhost:7000/api/v1/users/currentuser",
+        {
+          withCredentials: true,
+        }
+      );
+
+      setUser(res.data.data);
+    } catch (err) {
+      if (err.response?.status === 401) {
+        setUser(null); // user not logged in yet
+        return;
+      }
+
+      console.log(err);
+    }
+  }
+
+  fetchCurrentUser();
+}, []);
   return (
     <Routes>
       <Route path="/" element={<Signup />} />
       <Route path="/home" element={<Home />} />
-      <Route path="/buy/:productId" element={<Payment/>} />
-      <Route path="/searchforproduct" element={<SearchForm/>} />
-      <Route path="/login" element={<Login/>} />
-      <Route path="/sell" element={<PostProduct/>} />
-      <Route path="/displayproduct" element={<Productdisplay/>} />
-      <Route path="/admindashboard" element={<AdminDashboardPage/>} />
-      <Route path="/getsales" element={<SalesOverTimeChart/>} />
-     <Route path="/chat/:roomId" element={<ChatRoom />} />
+      <Route path="/buy/:productId" element={<Payment />} />
+      <Route path="/searchforproduct" element={<Productdisplay />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/sell" element={<PostProduct />} />
+      <Route path="/displayproduct" element={<Productdisplay />} />
+      <Route path="/admindashboard" element={<AdminDashboardPage />} />
+      <Route path="/getsales" element={<SalesOverTimeChart />} />
+      <Route path="/chat/:roomId" element={<ChatRoom />} />
       <Route path="/displaychats" element={<MyChats />} />
+      <Route path="/displayallproduct" element={<ViewProducts />} />
+      <Route path="/viewprofile" element={<UserProfile />} />
+      
 
 
- 
+
     </Routes>
   );
 }

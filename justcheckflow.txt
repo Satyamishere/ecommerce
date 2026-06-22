@@ -1,0 +1,33 @@
+i need to get user profile.first question.
+1) what does user profile containt?
+2) are there data for such in mindodb like scheme or if not then does currently we can get
+using existing schemas?
+3)design the end point for it
+
+
+
+-->what products it has already baught .what prodcuts have paymebt done but not delivered so on
+
+
+
+soln:change payment schema to include delivery status
+deliveryStatus:{
+    type:String,
+    enum:[
+        "processing",
+        "shipped",
+        "delivered"
+    ],
+    default:"processing"
+}
+
+also need to implemet these features
+
+   user,
+   purchasedProducts,
+   pendingDeliveries,
+   sellingProducts,
+   totalOrders,
+   totalProductsSold,
+   reviewsGiven,
+   reviewsReceived

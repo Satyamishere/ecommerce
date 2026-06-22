@@ -39,5 +39,18 @@ const productSchema = new Schema({
     lowercase: true,
     trim: true,
   },
+  //need updation of this field in rest of code
+  reviews:{
+    type:[
+      {
+        user: {
+          type:mongoose.Schema.Types.ObjectId,
+          ref:User
+        },
+        review:String,
+        rating:Number
+      }
+    ]
+  }
 });
 export const Product = mongoose.model("product", productSchema);

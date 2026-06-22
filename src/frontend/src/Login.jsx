@@ -1,12 +1,17 @@
-import React, { useState } from "react";
+import React, { useState ,useEffect} from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
-
+import { useNavigate} from "react-router-dom";
+import { useAuth } from "./FetchUser";
+import { socket } from "./utility/socket";
+/* 
+  we have to join the roon for given id 
+*/
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
-
+  const {user, setUser} = useAuth();
+  
   const handleLogin = async (e) => {
     e.preventDefault();
 
@@ -31,12 +36,17 @@ function Login() {
         if (res.data.data?.role?.includes("admin")) {
           navigate("/admindashboard");
         } else {
-          setTimeout(() => {
-            navigate("/home");
-          }, 1000);
+          if(res.data.data?._id){
+            setUser(res.data.data);
+            setTimeout(() => {
+              navigate("/home");
+            }, 1000);
+          }
+
+          
         }
       }
-      localStorage.setItem("user", JSON.stringify(res.data.data));
+      // user is stored in context via setUser; no localStorage usage for tokens/cached user
     } catch (error) {
       console.error("Login failed:", error.response?.data?.message || error.message);
       alert("Login failed. Please check your credentials.");
