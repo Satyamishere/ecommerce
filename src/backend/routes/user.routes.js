@@ -12,7 +12,8 @@ import {
   getSellingProducts,
   totalProdcutSold,
   getViewProducts,
-  updateProductReview
+  updateProductReview,
+  getRecommendedProduct
 } from "../controllers/userfunction.js";
 
 import { verifyJWT } from "../middleware/verifytoken.js";
@@ -39,6 +40,7 @@ router.route("/getpurchasesproducts").get(verifyJWT, getPurchasesProducts);
 router.route("/getsellingproducts").get(verifyJWT, getSellingProducts);
 router.route("/gettotalproductssold").get(verifyJWT, totalProdcutSold);
 router.route("/updateProductReview").get(verifyJWT, updateProductReview);
+router.route("/getRecommendedProduct").get(verifyJWT, getRecommendedProduct);
 
 
 

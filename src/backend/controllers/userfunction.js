@@ -702,6 +702,79 @@ const updateProductReview = async (req, res) => {
     });
   }
 };
+const getRecommendedProduct = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    // get view history
+    const views = await View.find({ user: userId })
+      .populate("product", "category count");
+
+    // get order history
+    const orders = await Order.find({ buyer: userId })
+      .populate("product", "category");
+
+    let score = {};
+
+    // views weight = count
+    for (const view of views) {
+      if (!view.product) continue;
+
+      const category = view.product.category.toString();
+
+      if (!score[category]) score[category] = 0;
+
+      score[category] += view.count;
+    }
+
+    // orders weight = 5
+    for (const order of orders) {
+      if (!order.product) continue;
+
+      const category = order.product.category.toString();
+
+      if (!score[category]) score[category] = 0;
+
+      score[category] += 5;
+    }
+
+    const sortedCategories = Object.entries(score)
+      .sort((a, b) => b[1] - a[1])
+      .map(([category]) => category);
+
+    let recommendedProducts = [];
+
+    for (const category of sortedCategories) {
+      const products = await Product.find({
+        category,
+        status: "pending"
+      }).limit(5);
+
+      recommendedProducts.push(...products);
+    }
+
+    // remove duplicates
+    const seen = new Set();
+    recommendedProducts = recommendedProducts.filter(product => {
+      if (seen.has(product._id.toString())) return false;
+      seen.add(product._id.toString());
+      return true;
+    });
+
+    return res.status(200).json({
+      success: true,
+      data: recommendedProducts
+    });
+
+  } catch (err) {
+    console.log(err);
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error"
+    });
+  }
+};
 
 export {
   createUser,
@@ -720,5 +793,6 @@ export {
   getSellingProducts,
   totalProdcutSold,
   getViewProducts,
-  updateProductReview
+  updateProductReview,
+  getRecommendedProduct
 };

@@ -1,6 +1,5 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate } from "react-router-dom";
-import {useState,useEffect} from "react";
 import {socket} from "./utility/socket";
 import "./Home.css";
 
@@ -9,6 +8,7 @@ function Home() {
   const navigate = useNavigate();
   const [messageCount, setMessageCount] = useState(0);
   const [notifications, setNotifications] = useState([]);
+  const [showNotifications, setShowNotifications] = useState(false);
 
   const handleCheckingChat = () => {
     let temp = [];
@@ -32,7 +32,6 @@ function Home() {
 
     return temp;
   };
-  const handleSearchClick = () => navigate("/searchforproduct");
   const handleSellClick = () => navigate("/sell");
   const handleDisplayClick = () => navigate("/displayproduct");
   const handleSendingMessageToBuyer = () => navigate("/displaychats");
@@ -41,6 +40,9 @@ function Home() {
   }
   const getUserProfile =()=>{
     navigate("/viewprofile")
+  }
+  const getRecommendation = ()=>{
+    navigate("/recommendproduct")
   }
 
   useEffect(() => {
@@ -58,52 +60,66 @@ function Home() {
 }, []);
 
   return (
-    <div className="home-container min-h-screen flex flex-col items-center justify-center bg-gray-100 gap-6 p-6">
-      <h1 className="home-title text-3xl font-bold mb-6 text-gray-800">Marketplace Home</h1>
+    <>
+      <div className="notifications-top-right">
+        <button
+          className="notification-toggle"
+          onClick={() => setShowNotifications((s) => !s)}
+          aria-expanded={showNotifications}
+        >
+          <span className="notification-label">Notifications</span>
+          <span className="notification-badge">{notifications.length}</span>
+        </button>
 
-      <button
-        onClick={handleSearchClick}
-        className="home-btn w-64 py-3 px-6 bg-blue-500 text-white rounded-2xl shadow hover:bg-blue-600 transition"
-      >
-        Search Product
-      </button>
-
-      <button
-        onClick={handleSellClick}
-        className="home-btn w-64 py-3 px-6 bg-green-500 text-white rounded-2xl shadow hover:bg-green-600 transition"
-      >
-        Sell Product
-      </button>
-
-      <button
-        onClick={handleDisplayClick}
-        className="home-btn w-64 py-3 px-6 bg-indigo-500 text-white rounded-2xl shadow hover:bg-indigo-600 transition"
-      >
-        Display Products
-      </button>
-
-      <button
-        onClick={handleSendingMessageToBuyer}
-        className="home-btn w-64 py-3 px-6 bg-purple-500 text-white rounded-2xl shadow hover:bg-purple-600 transition"
-      >
-        See Chats
-      </button>
-      <div className="notifications-root">
-        <div className="notification-count">notifications: {notifications.length}</div>
-        {notifications.length > 0 && (
-          <div className="mt-4 p-4 border rounded bg-white shadow notifications-box">
-            <h2 className="text-lg font-bold mb-2">Notifications</h2>
-            {handleCheckingChat()}
+        {showNotifications && (
+          <div className="notifications-box">
+            <h2 className="notif-title">Notifications</h2>
+            {notifications.length > 0 ? (
+              <div className="notif-list">{handleCheckingChat()}</div>
+            ) : (
+              <div className="notif-empty">No notifications</div>
+            )}
           </div>
         )}
       </div>
-      <button className="home-btn secondary px-4 py-2" onClick={getAllProduct}>
-        See All Products
-      </button>
-      <button className="home-btn secondary px-4 py-2" onClick={getUserProfile}>
-        View Profile
-      </button>
-    </div>
+
+      <div className="home-container min-h-screen flex flex-col items-center justify-center bg-gray-100 gap-6 p-6">
+        <h1 className="home-title text-3xl font-bold mb-6 text-gray-800">Marketplace Home</h1>
+
+        <button
+          onClick={handleDisplayClick}
+          className="home-btn w-64 py-3 px-6 bg-blue-500 text-white rounded-2xl shadow hover:bg-blue-600 transition"
+        >
+          Browse Products
+        </button>
+
+        <button
+          onClick={handleSellClick}
+          className="home-btn w-64 py-3 px-6 bg-green-500 text-white rounded-2xl shadow hover:bg-green-600 transition"
+        >
+          Sell Product
+        </button>
+
+        <button
+          onClick={handleSendingMessageToBuyer}
+          className="home-btn w-64 py-3 px-6 bg-purple-500 text-white rounded-2xl shadow hover:bg-purple-600 transition"
+        >
+          See Chats
+        </button>
+
+        <button className="home-btn secondary color-cyan px-4 py-2" onClick={getAllProduct}>
+          See All Products
+        </button>
+
+        <button className="home-btn secondary color-amber px-4 py-2" onClick={getUserProfile}>
+          View Profile
+        </button>
+
+        <button className="home-btn secondary color-rose px-4 py-2" onClick={getRecommendation}>
+          Get Recommendation
+        </button>
+      </div>
+    </>
   );
 }
 

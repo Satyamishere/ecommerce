@@ -15,6 +15,7 @@ import { useAuth } from "./FetchUser";
 import { socket } from "./utility/socket";
 import ViewProducts from "./ViewProducts";
 import UserProfile from "./UserProfile";
+import RecommendProduct from "./recommendProduct";
 
 function App() {
   const { user, setUser } = useAuth();
@@ -64,6 +65,7 @@ function App() {
       <Route path="/displaychats" element={<MyChats />} />
       <Route path="/displayallproduct" element={<ViewProducts />} />
       <Route path="/viewprofile" element={<UserProfile />} />
+      <Route path="/recommendproduct" element={<RecommendProduct />} />
     </Routes>
   );
 }
